@@ -26,8 +26,14 @@ jobs:
         with:
           node-version: 20
 
+      - name: Force install devDependencies
+        run: |
+          npm config set production false
+          npm config delete omit || true
+          npm config set omit ""
+
       - name: Install
-        run: npm install --include=dev
+        run: npm install
 
       - name: Build
         run: npm run build
