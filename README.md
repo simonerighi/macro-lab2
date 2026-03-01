@@ -13,7 +13,7 @@ npm run dev
 Se il repository non si chiama `macro-lab`, modifica la riga `base` in `vite.config.ts`:
 
 ```ts
-base: '/nome-repo/'
+base: '/nome-repo2/'
 ```
 
 Poi esegui:
