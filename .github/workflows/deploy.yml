@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -25,18 +25,45 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
-      - name: Force install devDependencies
+      - name: Debug - show repo root
         run: |
-          npm config set production false
+          pwd
+          ls -la
+          echo "Node: $(node -v)"
+          echo "npm:  $(npm -v)"
+          echo "npm omit: $(npm config get omit)"
+          if [ -f .npmrc ]; then
+            echo "Found .npmrc:"
+            sed -n '1,200p' .npmrc
+          else
+            echo "No .npmrc in repo root."
+          fi
+
+      - name: Install (force devDependencies)
+        run: |
           npm config delete omit || true
           npm config set omit ""
+          npm install --include=dev
 
-      - name: Install
-        run: npm install
+      - name: Debug - verify vite exists
+        run: |
+          echo "npm omit after install: $(npm config get omit)"
+          ls -la node_modules/.bin || true
+          npx --version
+          npx vite --version
+          npm ls vite || true
 
       - name: Build
         run: npm run build
+
+      - name: Debug - dist contents
+        run: |
+          echo "Dist listing:"
+          ls -la dist
+          echo "Dist top-level files:"
+          find dist -maxdepth 2 -type f | sed -n '1,120p'
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
